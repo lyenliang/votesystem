@@ -4,7 +4,7 @@ class TopicsController < ApplicationController
   # GET /topics
   # GET /topics.json
   def index
-    @topics = Topic.all
+    @topics = Topic.all.order("vote_number DESC")
   end
 
   # GET /topics/1
@@ -63,7 +63,10 @@ class TopicsController < ApplicationController
 
   def upvote
     @topic = Topic.find(params[:id])
+    byebug
     @topic.votes.create
+    @topic.vote_number += 1
+    @topic.save
     redirect_to(topics_path)
   end
 
@@ -71,8 +74,11 @@ class TopicsController < ApplicationController
     @topic = Topic.find(params[:id])
     @vote = @topic.votes.last
 
-    if @vote
+    if @vote.present?
+      byebug
       @topic.votes.delete(@vote)
+      @topic.vote_number -= 1
+      @topic.save
     end
     redirect_to(topics_path)
   end
