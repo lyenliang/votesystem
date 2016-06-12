@@ -64,19 +64,19 @@ class TopicsController < ApplicationController
 
   def upvote
     @topic = Topic.find(params[:id])
-    byebug
-    @topic.votes.create
-    @topic.vote_number += 1
-    @topic.save
+    if !@topic.votes.find_by(:vote_user => current_user.id)
+      @topic.votes.create(vote_user: current_user.id)
+      @topic.vote_number += 1
+      @topic.save
+    end
     redirect_to(topics_path)
   end
 
   def downvote
     @topic = Topic.find(params[:id])
-    @vote = @topic.votes.last
+    @vote = @topic.votes.find_by(:vote_user => current_user.id)
 
-    if @vote.present?
-      byebug
+    if @vote
       @topic.votes.delete(@vote)
       @topic.vote_number -= 1
       @topic.save
